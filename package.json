@@ -1,6 +1,6 @@
 {
   "name": "pi-pai",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Personal AI Infrastructure extension for Pi — Miessler's Algorithm with ISC, disler's 97+ damage-control patterns, Ralph Wiggum iteration, rating capture, and live TUI widget",
   "type": "module",
   "main": "src/extension.ts",
