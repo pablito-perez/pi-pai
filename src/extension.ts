@@ -9,6 +9,8 @@
  * v3.1: Carmack review — killed hand-rolled YAML parser (→ js-yaml),
  * split /pai switch into dispatch table, externalized templates to JSON,
  * fixed isPathMatch to single canonical strategy.
+ *
+ * v3.1.1: Fix Ralph event handler — typed event access, guard null mission in widget.
  */
 
 import type { ExtensionAPI, ExtensionContext } from '@mariozechner/pi-coding-agent'
@@ -177,7 +179,8 @@ export default function (pi: ExtensionAPI) {
           return lines
         }
 
-        const m = state.mission.length > width - 20 ? state.mission.slice(0, width - 23) + '...' : state.mission
+        const raw = state.mission ?? ''
+        const m = raw.length > width - 20 ? raw.slice(0, width - 23) + '...' : raw
         lines.push(theme.fg('accent', '  🎯 ') + theme.fg('success', m))
 
         const goals = Array.from(state.goals.values())
@@ -442,7 +445,8 @@ export default function (pi: ExtensionAPI) {
   pi.on('message_end', async (event, ctx) => {
     if (!state.ralphActive) return
     if (state.ralphIteration >= 50) { state.ralphActive = false; notify('🛑 Ralph: 50 limit', 'warning'); updateWidget(); return }
-    if (((event as any)?.text || '').includes('RALPH_DONE')) { state.ralphActive = false; notify(`✅ Ralph done in ${state.ralphIteration}`, 'info'); updateWidget(); return }
+    const text = typeof event === 'object' && event !== null && 'text' in event ? String((event as Record<string, unknown>).text) : ''
+    if (text.includes('RALPH_DONE')) { state.ralphActive = false; notify(`✅ Ralph done in ${state.ralphIteration}`, 'info'); updateWidget(); return }
     pi.sendMessage({ customType: 'pai-ralph', content: `[Ralph #${++state.ralphIteration}] Continue. Say "RALPH_DONE" when finished.`, display: true, details: undefined }, { triggerTurn: true })
     updateWidget()
   })
