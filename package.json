@@ -7,6 +7,14 @@
   "pi": {
     "extensions": [
       "src/extension.ts"
+    ],
+    "commands": [
+      "status"
+    ],
+    "tools": [
+      "pai_status",
+      "pai_learn",
+      "pai_rate"
     ]
   },
   "scripts": {
