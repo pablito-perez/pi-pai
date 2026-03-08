@@ -533,19 +533,9 @@ export default function (pi: ExtensionAPI) {
         } catch { /* bad regex, skip */ }
       }
 
-      for (const zap of rules.zeroAccessPaths) {
-        const clean = zap.replace(/^~\//, '').replace(/^\*/, '')
-        if (!clean) continue
-        // Require path context: slash, backslash, or whitespace before the pattern.
-        // Prevents false positives: "process.env" matching ".env", "Object.keys" matching ".key"
-        const escaped = clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        const pathRegex = new RegExp('(^|[/\\\\\\s])' + escaped + '(\\b|[/\\\\\\s]|$)')
-        if (pathRegex.test(cmd)) {
-          persist(pi, 'pai-dc', { cmd, reason: `zero-access: ${zap}`, action: 'blocked' })
-          ctx.abort()
-          return { block: true, reason: `🛑 zero-access: ${zap}. DO NOT retry.` }
-        }
-      }
+      // NOTE: zeroAccessPaths are NOT checked against bash commands.
+      // Per Miessler's original PAI design, bash validation uses only regex patterns (above).
+      // Path-based access control (zeroAccess, readOnly, noDelete) applies to file operations only (below).
     }
 
     if (isToolCallEventType('read', event) || isToolCallEventType('write', event) || isToolCallEventType('edit', event)) {

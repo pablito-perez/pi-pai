@@ -1,1 +1,8 @@
-v3.0.4: fix zeroAccessPaths false positives on bash substring matching
+v3.0.5: remove zeroAccess bash check (matches Miessler original)
+
+Per danielmiessler/Personal_AI_Infrastructure SecurityValidator.hook.ts,
+bash commands are validated ONLY with regex patterns (bashToolPatterns).
+zeroAccessPaths should only apply to file operations (read/write/edit).
+
+The bash zeroAccess check was a pi-pai addition that caused false positives
+on substrings like process dot env, Object dot keys, pi-envman, etc.
